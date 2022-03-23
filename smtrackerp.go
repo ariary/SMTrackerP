@@ -96,6 +96,16 @@ func TrackHandler(cfg *Config) http.Handler {
 			fmt.Println(color.Cyan(color.Italic("not detected")))
 		}
 
+		//More things to test..
+		switch {
+		case strings.Contains(userAgent, "Thunderbird"):
+			fmt.Println(color.Cyan("📨 SMTP Client: Thunderbird"))
+		}
+
+		referer := r.Referer()
+		if referer != "" {
+			fmt.Println(color.Cyan("📨 Referer:", referer))
+		}
 		fmt.Println()
 	})
 
