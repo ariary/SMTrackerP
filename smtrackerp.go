@@ -65,6 +65,12 @@ func TrackHandler(cfg *Config) http.Handler {
 			fmt.Println(color.Evil("👁️ SOMEONE IS READING.."))
 		}
 
+		ip := strings.Split(r.RemoteAddr, ":")[0]
+		if ip == "127.0.0.1" {
+			ip = r.Header.Get("X-Forwarded-For")
+		}
+		fmt.Println(color.Cyan("📍 IP address: ", ip))
+
 		now := time.Now()
 		fmt.Println(color.Cyan("🕚 at ", now))
 		//parse user-agent
@@ -104,7 +110,7 @@ func TrackHandler(cfg *Config) http.Handler {
 
 		referer := r.Referer()
 		if referer != "" {
-			fmt.Println(color.Cyan("📨 Referer:", referer))
+			fmt.Println(color.Cyan("📨 Referer: ", referer))
 		}
 		fmt.Println()
 	})
