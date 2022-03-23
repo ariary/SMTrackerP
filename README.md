@@ -16,7 +16,7 @@ Ensure your email has been read.
 
 ```shell
 cd $(mktemp -d) # preferably in temporary dir
-smtrackerp -e [your_external_url]
+smtrackerp -e [your_external_url] [target_mail]
 ```
 
 **2️ Insert payload in your mail**
@@ -26,3 +26,7 @@ smtrackerp -e [your_external_url]
 Send it!
 
 **3️ Wait..**
+
+![demo](https://github.com/ariary/SMTrackerP/blob/main/img/demo.png)
+
+<sup> I know, i know .. i'm using `ngrok`, for testing purpose only</sup>
