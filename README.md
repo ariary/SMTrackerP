@@ -1,4 +1,4 @@
-# Simple Mail T(racker) Protocol ✉️
+# Simple Mail T(racker) Protocol 🎣 📨
 
 Ensure your email has been read.
 
