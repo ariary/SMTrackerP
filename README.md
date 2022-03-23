@@ -4,7 +4,7 @@ Ensure your email has been read.
 
 ***Why?***
 * Because many SMTP clients don't provide "acknowledgement of receipt" anymore
-* In phishing simulation (with the prior agreements of course!), retrieve information about who read, with which computer at what time etc..
+* In phishing simulation (with the prior agreements of course!), retrieve information about who read, with which browser, at what time etc..
 * For commercial mail, to see who has been attracted by your email, but it is definitely not cool!
 
 
