@@ -1,6 +1,13 @@
 # Simple Mail T(racker) Protocol 🎣 📨
 
-Ensure your email has been read.
+<div align=center>
+<img src= https://github.com/ariary/SMTrackerP/blob/main/img/A7C1B863-E3CF-4B30-A60C-6C67B6FBB463.png width=180>
+
+<br><strong><i>Ensure your email has been read</i></strong>
+
+👁️ <strong>•</strong> 🔨 <strong>•</strong> 📬
+</div> 
+
 
 ***Why?***
 * Because many SMTP clients don't provide "acknowledgement of receipt" anymore
