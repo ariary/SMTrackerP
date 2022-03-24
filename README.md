@@ -1,11 +1,11 @@
-# Simple Mail T(racker) Protocol 🎣 📨
+# Simple Mail T(racker) Protocol 
 
 <div align=center>
 <img src= https://github.com/ariary/SMTrackerP/blob/main/img/68DAEBA3-647B-446D-A7EB-1A3BE783B58C.png width=180>
 
 <br><strong><i>Ensure your email has been read</i></strong>
 
-👁️ <strong>•</strong> 🔨 <strong>•</strong> 📬
+👁️ <strong>•</strong> 🎣 <strong>•</strong> 📬
 </div> 
 
 
