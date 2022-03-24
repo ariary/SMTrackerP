@@ -61,7 +61,7 @@ smtrackerp send -u [YOUR_EXTERNAL_URL] -r [LIST_OF_RECIPIENTS] -s [MAIL_SUBJECT]
 ```
 
 #### Demo
-What the target see:
+What the target sees:
 
 ![target](https://github.com/ariary/SMTrackerP/blob/main/img/mail.png)
 
