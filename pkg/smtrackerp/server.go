@@ -16,6 +16,7 @@ import (
 func TrackHandler(cfg *Config) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Content-type", "image/png")
+		w.Header().Add("Cache-Control", "no-cache") //avoird cache by browser to be alerted at each reading
 
 		//Generate fake image (an 1 x 1 image) to serve it
 		img := image.NewRGBA(image.Rect(0, 0, 1, 1))
@@ -77,6 +78,8 @@ func TrackHandler(cfg *Config) http.Handler {
 		switch {
 		case strings.Contains(userAgent, "Thunderbird"):
 			fmt.Println(color.Cyan("📬 SMTP Client: Thunderbird"))
+		case strings.Contains(userAgent, "GoogleImageProxy"):
+			fmt.Println(color.Cyan("⭐ Client request came from GoogleImageProxy (other information should be taken with caution)"))
 		}
 
 		referer := r.Referer()

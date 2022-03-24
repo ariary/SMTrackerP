@@ -37,7 +37,7 @@ func main() {
 	// flag handling
 	rootCmd.PersistentFlags().StringVarP(&url, "url", "u", "", "external address of the HTTP server waiting for proof of reading")
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose mode")
-	rootCmd.Flags().StringVarP(&target, "generate", "t", "", "generate HTML template to include within th email for a specific target")
+	rootCmd.Flags().StringVarP(&target, "generate", "t", "", "generate HTML template to include within the email for a specific target")
 
 	// SEND command
 	var recipients []string
