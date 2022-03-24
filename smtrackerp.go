@@ -1,147 +1,93 @@
 package main
 
 import (
-	"flag"
 	"fmt"
-	"image"
-	"image/png"
-	"log"
-	"net/http"
+	"io/ioutil"
 	"os"
-	"strings"
-	"text/template"
-	"time"
 
 	"github.com/ariary/go-utils/pkg/check"
 	"github.com/ariary/go-utils/pkg/color"
-	ua "github.com/mileusna/useragent"
+	"github.com/ariary/smtrackerp/pkg/smtrackerp"
+	"github.com/spf13/cobra"
 )
 
-type Config struct {
-	Url     string
-	Target  string
-	Verbose bool
-}
-
 func main() {
+
+	//CMD FILELESS-XEC
+	var url string
+	var target string
 	var verbose bool
-	url := flag.String("e", "", "Server external reachable ip")
-	flag.BoolVar(&verbose, "v", false, "verbose mode (see HTTP request headers)")
 
-	flag.Parse()
-	target := flag.Arg(0)
+	var rootCmd = &cobra.Command{
+		Use:   "smtrackerp",
+		Short: "Track if mail has been read",
+		Long:  `Track if mail has been read by inserting malicious and transparent image within`,
+		Args:  cobra.MinimumNArgs(0),
+		Run: func(cmd *cobra.Command, args []string) {
+			cfg := &smtrackerp.Config{Url: url, Target: target, Verbose: verbose}
 
-	cfg := &Config{Url: *url, Target: target, Verbose: verbose}
-	generatePayload(cfg)
-	fmt.Println(color.Bold("✉️ Generate HTML payload:"), color.Italic("payload.html"))
-
-	http.Handle("/", TrackHandler(cfg))
-
-	fmt.Println(color.Bold("🚀 Serve at:"), color.Italic(cfg.Url))
-	fmt.Println()
-	log.Fatal(http.ListenAndServe(":8080", nil))
-}
-
-func TrackHandler(cfg *Config) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Add("Content-type", "image/png")
-
-		//Generate fake image (an 1 x 1 image) to serve it
-		img := image.NewRGBA(image.Rect(0, 0, 1, 1))
-		png.Encode(w, img) //less bytes than jpeg.Encode(w, img, nil)
-
-		// track info
-		if cfg.Verbose {
-			headers := r.Header
-			for k, v := range headers {
-				fmt.Println(k, v)
+			if cfg.Target != "" {
+				smtrackerp.GeneratePayload(cfg)
+				fmt.Println(color.Bold("✉️ Generate HTML payload:"), color.Italic("payload.html"))
 			}
-		}
 
-		target := r.FormValue("target")
-		if target != "" {
-			fmt.Println(color.Evil("👁️ ", strings.ToUpper(target), " IS READING.."))
-		} else {
-			fmt.Println(color.Evil("👁️ SOMEONE IS READING.."))
-		}
-
-		ip := strings.Split(r.RemoteAddr, ":")[0]
-		if ip == "127.0.0.1" {
-			ip = r.Header.Get("X-Forwarded-For")
-		}
-		fmt.Println(color.Cyan("📍 IP address: ", ip))
-
-		now := time.Now()
-		fmt.Println(color.Cyan("🕚 at ", now))
-		//parse user-agent
-		userAgent := r.UserAgent()
-		ua := ua.Parse(userAgent)
-		//browser
-		fmt.Print(color.Cyan("🌐 browser: "))
-		if ua.Name != "" {
-			fmt.Println(color.Cyan(ua.Name))
-		} else {
-			fmt.Println(color.Cyan(color.Italic("not detected")))
-		}
-		//OS
-		fmt.Print(color.Cyan("🤖 OS: "))
-		if ua.OS != "" {
-			fmt.Print(color.Cyan(ua.OS))
-			if ua.OSVersion != "" {
-				fmt.Print(color.Cyan("(", ua.OSVersion, ")"))
-			}
-			fmt.Println()
-		} else {
-			fmt.Println(color.Cyan(color.Italic("not detected")))
-		}
-		//hardware type
-		fmt.Print(color.Cyan("🖥️ device type: "))
-		if ua.Device != "" {
-			fmt.Println(color.Cyan(ua.Device))
-		} else {
-			fmt.Println(color.Cyan(color.Italic("not detected")))
-		}
-
-		//More things to test..
-		switch {
-		case strings.Contains(userAgent, "Thunderbird"):
-			fmt.Println(color.Cyan("📨 SMTP Client: Thunderbird"))
-		}
-
-		referer := r.Referer()
-		if referer != "" {
-			fmt.Println(color.Cyan("📨 Referer: ", referer))
-		}
-		fmt.Println()
-	})
-
-}
-
-// generatePayload: generate the HTML transparent image and save it in a file
-func generatePayload(cfg *Config) {
-	// generate template
-	payloadTpl := `
-<html>
-<body>
-	<img src="{{ .Url}}/?target={{ .Target}}" opacity=0>
-</body>
-</html>
-`
-	t, err := template.New("payload").Parse(payloadTpl)
-	check.CheckAndExit(err, "❌ Failed loading payload html template")
-	data := struct {
-		Url    string
-		Target string
-	}{
-		Url:    cfg.Url,
-		Target: cfg.Target,
+			smtrackerp.Serve(cfg)
+		},
 	}
+	// flag handling
+	rootCmd.PersistentFlags().StringVarP(&url, "url", "u", "", "external address of the HTTP server waiting for proof of reading")
+	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose mode")
+	rootCmd.Flags().StringVarP(&target, "generate", "t", "", "generate HTML template to include within th email for a specific target")
 
-	//save file
-	f, err := os.Create("payload.html")
-	check.CheckAndExit(err, "❌ Failed creating file")
+	// SEND command
+	var recipients []string
+	var subject string
+	var bodyFile string
+	var smtpHost, smtpPort string
+	var serve bool
 
-	defer f.Close()
+	var sendCmd = &cobra.Command{
+		Use:   "send",
+		Short: "Send mail with tracker",
+		Long:  `Send mail with the tracker`,
+		Args:  cobra.MinimumNArgs(0),
+		Run: func(cmd *cobra.Command, args []string) {
+			// retrieve smtp credentials
+			username := os.Getenv("SMTP_USERNAME")
+			password := os.Getenv("SMTP_PASSWORD")
+			if username == "" || password == "" {
+				fmt.Println("❌ Set your environment variable SMTP_USERNAME and SMTP_PASSWORD to use send command.")
+				os.Exit(1)
+			}
 
-	check.CheckAndExit(t.Execute(f, data), "❌ Failed writing html in file")
+			//read body
+			body, err := ioutil.ReadFile(bodyFile)
+			check.CheckAndExit(err, "❌ Failed reading body template for mail")
+
+			// send mails
+			cfg := &smtrackerp.Config{Url: url, Target: target, Verbose: verbose, Username: username, Password: password, Subject: subject, Body: body, SmtpHost: smtpHost, SmtpPort: smtpPort, Recipents: recipients}
+			smtrackerp.SendMail(cfg)
+
+			//Also track?
+			if serve {
+				smtrackerp.Serve(cfg)
+			}
+		},
+	}
+	//flag handling
+	sendCmd.PersistentFlags().StringSliceVarP(&recipients, "recipients", "r", []string{}, "list of recipients to send mail")
+	sendCmd.PersistentFlags().StringVarP(&subject, "subject", "s", "", "mail subject")
+	sendCmd.PersistentFlags().StringVarP(&bodyFile, "body", "b", "", "file containing the mail body")
+	sendCmd.PersistentFlags().StringVarP(&smtpHost, "smtphost", "a", "", "smtp server address")
+	sendCmd.PersistentFlags().StringVarP(&smtpPort, "smtpport", "p", "", "smtp server port")
+	sendCmd.PersistentFlags().BoolVarP(&serve, "track", "t", false, "wait for proof of reading after sending mails")
+	sendCmd.MarkPersistentFlagRequired("url")
+	sendCmd.MarkPersistentFlagRequired("recipients")
+	sendCmd.MarkPersistentFlagRequired("body")
+	sendCmd.MarkPersistentFlagRequired("smtphost")
+	sendCmd.MarkPersistentFlagRequired("smtpport")
+
+	rootCmd.AddCommand(sendCmd)
+	rootCmd.Execute()
+
 }
