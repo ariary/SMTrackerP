@@ -43,7 +43,7 @@ You can use `smtrackerp` to directly send your mail and then waiting for the "pr
 
 **1️ Put the mail body in a file**
 
-*You could use `test/test.html` if you want
+*You could use `test/test.html` if you want*
 
 **2️ Load your SMTP credential**
 
