@@ -59,3 +59,12 @@ and source it
 ```shell
 smtrackerp send -u [YOUR_EXTERNAL_URL] -r [LIST_OF_RECIPIENTS] -s [MAIL_SUBJECT] -b [BODY_FILENAME] -a [SMP_HOST] -p [SMTP_PORT]  --track
 ```
+
+#### Demo
+What the target see:
+
+![target](https://github.com/ariary/SMTrackerP/blob/main/img/mail.png)
+
+What we see:
+
+![demo-send](https://github.com/ariary/SMTrackerP/blob/main/img/send-demo.png)
