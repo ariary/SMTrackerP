@@ -21,7 +21,6 @@
 **1️ Launch `smtrackerp`**
 
 ```shell
-cd $(mktemp -d) # preferably in temporary dir
 smtrackerp --url [YOUR_EXTERNAL_URL] -t [TARGET_MAIL]
 ```
 
