@@ -14,7 +14,7 @@
 * Because many SMTP clients don't provide "acknowledgement of receipt" anymore
 * For commercial mail, to see who has been attracted by your email, but it is definitely not cool!
 
-*Current state is a very naive implementation, may be enhancements will be made espacially for the phishing use case (deal with multiple targets, directly send the email providing a mail list, etc..)*
+*Current state is a very naive implementation, maybe enhancements will be made espacially for the phishing use case (deal with multiple targets, directly send the email providing a mail list, etc..)*
 
 ## 🚀 Launch instructions
 
